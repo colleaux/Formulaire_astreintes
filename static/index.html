@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suivi des interventions</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Styles de base */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #74ebd5 0%, #9face6 100%);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 30px auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            font-size: 2.5em;
+        }
+
+        h2 {
+            color: #444;
+            margin-bottom: 20px;
+        }
+
+        /* Formulaire */
+        label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        input, textarea, select, button {
+            font-size: 16px;
+            padding: 12px 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        /* Effet de focus sur les champs */
+        input:focus, textarea:focus, select:focus {
+            border-color: #4CAF50;
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+        }
+
+        /* Vignette image */
+        #thumbnailContainer {
+            display: none;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        #thumbnailContainer img {
+            max-width: 150px;
+            max-height: 150px;
+            border-radius: 10px;
+            border: 2px solid #ddd;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        #thumbnailContainer img:hover {
+            transform: scale(1.5);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Styles pour la modale de confirmation */
+        #confirmationModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        #confirmationModal.show {
+            opacity: 1;
+            display: flex;
+        }
+
+        #confirmationModal div {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Style pour le message de confirmation */
+        #confirmationModal p {
+            font-size: 1.2em;
+            color: #333;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Suivi des interventions</h1>
+        <div class="form-section">
+            <h2>Formulaire de saisie</h2>
+            <form id="interventionForm" enctype="multipart/form-data">
+                <label for="technicien"><i class="fas fa-user-tie"></i> Technicien</label>
+                <input list="techniciens" id="technicien" name="technicien" required>
+                <datalist id="techniciens"></datalist>
+
+                <label for="lieu"><i class="fas fa-map-marker-alt"></i> Lieu d’intervention</label>
+                <input list="lieux" id="lieu" name="lieu" required>
+                <datalist id="lieux"></datalist>
+
+                <label for="equipement"><i class="fas fa-cogs"></i> Équipement concerné</label>
+                <input list="equipements" id="equipement" name="equipement" required>
+                <datalist id="equipements"></datalist>
+
+                <label for="entreprise"><i class="fas fa-building"></i> Entreprise intervenante</label>
+                <input list="entreprises" id="entreprise" name="entreprise" required>
+                <datalist id="entreprises"></datalist>
+
+                <label for="motif"><i class="fas fa-comment-dots"></i> Motif d’intervention</label>
+                <textarea id="motif" name="motif" required></textarea>
+
+                <label for="operation"><i class="fas fa-tools"></i> Opération réalisée</label>
+                <textarea id="operation" name="operation" required></textarea>
+
+                <label for="terminee"><i class="fas fa-check-circle"></i> Opération terminée ?</label>
+                <select id="terminee" name="terminee">
+                    <option value="Oui">Oui</option>
+                    <option value="Non">Non</option>
+                </select>
+
+                <label for="date_intervention"><i class="fas fa-calendar-alt"></i> Date et heure de l’intervention</label>
+                <input type="datetime-local" id="date_intervention" name="date_intervention" required>
+
+                <label for="photo"><i class="fas fa-camera"></i> Ajouter une photo</label>
+                <input type="file" id="photo" name="photo" accept="image/*" capture="environment">
+
+                <div id="thumbnailContainer"></div>
+
+                <button type="submit">Enregistrer</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modale de confirmation -->
+    <div id="confirmationModal">
+        <div>
+            <p>Êtes-vous sûr de vouloir enregistrer ces informations ?</p>
+            <button id="confirmSave">Oui</button>
+            <button id="cancelSave">Non</button>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('interventionForm');
+        const confirmationModal = document.getElementById('confirmationModal');
+        const confirmSave = document.getElementById('confirmSave');
+        const cancelSave = document.getElementById('cancelSave');
+        const thumbnailContainer = document.getElementById('thumbnailContainer');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Afficher la modale de confirmation
+            confirmationModal.classList.add('show');
+        });
+
+        // Confirmation de l'enregistrement
+        confirmSave.addEventListener('click', async () => {
+            const formData = new FormData(form);
+
+            // Envoi des données au serveur
+            const response = await fetch('/save', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                alert('Données enregistrées avec succès !');
+                form.reset();
+                thumbnailContainer.style.display = 'none';
+            } else {
+                alert('Erreur lors de l\'enregistrement.');
+            }
+
+            // Fermer la modale
+            confirmationModal.classList.remove('show');
+        });
+
+        // Annuler l'enregistrement
+        cancelSave.addEventListener('click', () => {
+            confirmationModal.classList.remove('show');
+        });
+
+        // Afficher l'aperçu de l'image
+        document.getElementById('photo').addEventListener('change', function () {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    thumbnailContainer.innerHTML = '';  // Vider le conteneur
+                    thumbnailContainer.appendChild(img);
+                    thumbnailContainer.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+</body>
+</html>
