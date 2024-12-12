@@ -4,77 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Suivi des interventions</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <style>
-        /* Styles de base */
         body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #74ebd5 0%, #9face6 100%);
-            margin: 0;
-            padding: 0;
+            font-family: Arial, sans-serif;
+            margin: 20px;
         }
-
         .container {
-            max-width: 700px;
-            margin: 30px auto;
-            background-color: #ffffff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 0 auto;
         }
-
-        h1 {
-            text-align: center;
-            color: #333;
-            font-size: 2.5em;
-        }
-
-        h2 {
-            color: #444;
-            margin-bottom: 20px;
-        }
-
-        /* Formulaire */
         label {
-            font-weight: bold;
-            color: #555;
+            display: block;
+            margin-top: 10px;
         }
-
         input, textarea, select, button {
-            font-size: 16px;
-            padding: 12px 15px;
-            margin: 10px 0;
-            border-radius: 8px;
-            border: 1px solid #ddd;
             width: 100%;
-            box-sizing: border-box;
+            padding: 10px;
+            margin-top: 5px;
         }
-
-        button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        button:hover {
-            background-color: #45a049;
-        }
-
-        /* Effet de focus sur les champs */
-        input:focus, textarea:focus, select:focus {
-            border-color: #4CAF50;
-            box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
-        }
-
-        /* Vignette image */
         #thumbnailContainer {
             display: none;
             margin-top: 10px;
-            text-align: center;
         }
-
         #thumbnailContainer img {
             max-width: 150px;
             max-height: 150px;
@@ -83,13 +34,10 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-
         #thumbnailContainer img:hover {
             transform: scale(1.5);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
-
-        /* Styles pour la modale de confirmation */
         #confirmationModal {
             display: none;
             position: fixed;
@@ -97,87 +45,77 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.5);
             justify-content: center;
             align-items: center;
             z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.3s ease;
         }
-
-        #confirmationModal.show {
-            opacity: 1;
-            display: flex;
-        }
-
         #confirmationModal div {
-            background: #fff;
+            background: white;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            animation: fadeIn 0.3s ease;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
         }
-
-        @keyframes fadeIn {
-            0% {
-                opacity: 0;
-                transform: translateY(-50px);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        #confirmationModal button {
+            margin: 10px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
         }
-
-        /* Style pour le message de confirmation */
-        #confirmationModal p {
-            font-size: 1.2em;
-            color: #333;
+        #confirmBtn {
+            background: #4CAF50;
+            color: white;
         }
-
+        #cancelBtn {
+            background: #f44336;
+            color: white;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Suivi des interventions</h1>
+
+        <!-- Formulaire de saisie -->
         <div class="form-section">
             <h2>Formulaire de saisie</h2>
             <form id="interventionForm" enctype="multipart/form-data">
-                <label for="technicien"><i class="fas fa-user-tie"></i> Technicien</label>
+                <label for="technicien">Technicien</label>
                 <input list="techniciens" id="technicien" name="technicien" required>
                 <datalist id="techniciens"></datalist>
 
-                <label for="lieu"><i class="fas fa-map-marker-alt"></i> Lieu d’intervention</label>
+                <label for="lieu">Lieu d’intervention</label>
                 <input list="lieux" id="lieu" name="lieu" required>
                 <datalist id="lieux"></datalist>
 
-                <label for="equipement"><i class="fas fa-cogs"></i> Équipement concerné</label>
+                <label for="equipement">Équipement concerné</label>
                 <input list="equipements" id="equipement" name="equipement" required>
                 <datalist id="equipements"></datalist>
 
-                <label for="entreprise"><i class="fas fa-building"></i> Entreprise intervenante</label>
+                <label for="entreprise">Entreprise intervenante</label>
                 <input list="entreprises" id="entreprise" name="entreprise" required>
                 <datalist id="entreprises"></datalist>
 
-                <label for="motif"><i class="fas fa-comment-dots"></i> Motif d’intervention</label>
+                <label for="motif">Motif d’intervention</label>
                 <textarea id="motif" name="motif" required></textarea>
 
-                <label for="operation"><i class="fas fa-tools"></i> Opération réalisée</label>
+                <label for="operation">Opération réalisée</label>
                 <textarea id="operation" name="operation" required></textarea>
 
-                <label for="terminee"><i class="fas fa-check-circle"></i> Opération terminée ?</label>
+                <label for="terminee">Opération terminée ?</label>
                 <select id="terminee" name="terminee">
                     <option value="Oui">Oui</option>
                     <option value="Non">Non</option>
                 </select>
 
-                <label for="date_intervention"><i class="fas fa-calendar-alt"></i> Date et heure de l’intervention</label>
-                <input type="datetime-local" id="date_intervention" name="date_intervention" required>
-
-                <label for="photo"><i class="fas fa-camera"></i> Ajouter une photo</label>
+                <label for="photo">Ajouter une photo</label>
                 <input type="file" id="photo" name="photo" accept="image/*" capture="environment">
-
-                <div id="thumbnailContainer"></div>
+                <div id="thumbnailContainer">
+                    <img id="imagePreview" alt="Aperçu de l'image">
+                </div>
 
                 <button type="submit">Enregistrer</button>
             </form>
@@ -187,31 +125,50 @@
     <!-- Modale de confirmation -->
     <div id="confirmationModal">
         <div>
-            <p>Êtes-vous sûr de vouloir enregistrer ces informations ?</p>
-            <button id="confirmSave">Oui</button>
-            <button id="cancelSave">Non</button>
+            <h2>Confirmer l'enregistrement</h2>
+            <p>Voulez-vous vraiment enregistrer ces informations ?</p>
+            <button id="confirmBtn">Confirmer</button>
+            <button id="cancelBtn">Annuler</button>
         </div>
     </div>
 
     <script>
         const form = document.getElementById('interventionForm');
         const confirmationModal = document.getElementById('confirmationModal');
-        const confirmSave = document.getElementById('confirmSave');
-        const cancelSave = document.getElementById('cancelSave');
+        const confirmBtn = document.getElementById('confirmBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const photoInput = document.getElementById('photo');
+        const imagePreview = document.getElementById('imagePreview');
         const thumbnailContainer = document.getElementById('thumbnailContainer');
 
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
+        // Gérer l'aperçu de l'image
+        photoInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
 
-            // Afficher la modale de confirmation
-            confirmationModal.classList.add('show');
+                reader.onload = (e) => {
+                    imagePreview.src = e.target.result;
+                    thumbnailContainer.style.display = 'block';
+                };
+
+                reader.readAsDataURL(file);
+            } else {
+                thumbnailContainer.style.display = 'none';
+            }
         });
 
-        // Confirmation de l'enregistrement
-        confirmSave.addEventListener('click', async () => {
-            const formData = new FormData(form);
+        // Afficher la modale de confirmation
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            confirmationModal.style.display = 'flex';
+        });
 
-            // Envoi des données au serveur
+        // Confirmer l'enregistrement
+        confirmBtn.addEventListener('click', async () => {
+            const formData = new FormData(form);
+            formData.append('date', new Date().toLocaleString());
+
             const response = await fetch('/save', {
                 method: 'POST',
                 body: formData
@@ -225,29 +182,13 @@
                 alert('Erreur lors de l\'enregistrement.');
             }
 
-            // Fermer la modale
-            confirmationModal.classList.remove('show');
+            confirmationModal.style.display = 'none';
         });
 
         // Annuler l'enregistrement
-        cancelSave.addEventListener('click', () => {
-            confirmationModal.classList.remove('show');
-        });
-
-        // Afficher l'aperçu de l'image
-        document.getElementById('photo').addEventListener('change', function () {
-            const file = this.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    thumbnailContainer.innerHTML = '';  // Vider le conteneur
-                    thumbnailContainer.appendChild(img);
-                    thumbnailContainer.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
-            }
+        cancelBtn.addEventListener('click', () => {
+            confirmationModal.style.display = 'none';
+            alert('Enregistrement annulé.');
         });
     </script>
 </body>
