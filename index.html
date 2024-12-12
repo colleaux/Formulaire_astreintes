@@ -67,6 +67,23 @@
         .image-preview img:hover {
             transform: scale(2);
         }
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #333;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            transform: translateY(20px);
+        }
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body>
@@ -76,6 +93,9 @@
         <div class="form-section">
             <h2>Formulaire de saisie</h2>
             <form id="interventionForm" enctype="multipart/form-data">
+                <label for="site">Site</label>
+                <input type="text" id="site" name="site" required>
+
                 <label for="technicien">Technicien</label>
                 <input list="techniciens" id="technicien" name="technicien" required>
                 <datalist id="techniciens"></datalist>
@@ -122,10 +142,21 @@
         </div>
     </div>
 
+    <div class="notification" id="notification"></div>
+
     <script>
         const form = document.getElementById('interventionForm');
         const photoInput = document.getElementById('photo');
         const imagePreview = document.getElementById('imagePreview');
+        const notification = document.getElementById('notification');
+
+        function showNotification(message) {
+            notification.textContent = message;
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
 
         photoInput.addEventListener('change', () => {
             const file = photoInput.files[0];
@@ -143,14 +174,56 @@
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            if (!confirm("Voulez-vous vraiment enregistrer cette intervention ?")) {
+            const userConfirmed = await new Promise((resolve) => {
+                const modal = document.createElement('div');
+                modal.style.position = 'fixed';
+                modal.style.top = '0';
+                modal.style.left = '0';
+                modal.style.width = '100%';
+                modal.style.height = '100%';
+                modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+                modal.style.display = 'flex';
+                modal.style.justifyContent = 'center';
+                modal.style.alignItems = 'center';
+                modal.style.zIndex = '1000';
+
+                const dialog = document.createElement('div');
+                dialog.style.backgroundColor = '#fff';
+                dialog.style.padding = '20px';
+                dialog.style.borderRadius = '5px';
+                dialog.style.textAlign = 'center';
+                dialog.innerHTML = '<p>Voulez-vous vraiment enregistrer cette intervention ?</p>';
+
+                const yesButton = document.createElement('button');
+                yesButton.textContent = 'Oui';
+                yesButton.style.margin = '10px';
+                yesButton.onclick = () => {
+                    resolve(true);
+                    document.body.removeChild(modal);
+                };
+
+                const noButton = document.createElement('button');
+                noButton.textContent = 'Non';
+                noButton.style.margin = '10px';
+                noButton.onclick = () => {
+                    resolve(false);
+                    document.body.removeChild(modal);
+                };
+
+                dialog.appendChild(yesButton);
+                dialog.appendChild(noButton);
+                modal.appendChild(dialog);
+                document.body.appendChild(modal);
+            });
+
+            if (!userConfirmed) {
                 return;
             }
 
             const formData = new FormData(form);
 
             // Simuler une soumission réussie
-            alert('Données enregistrées avec succès !');
+            showNotification('Données enregistrées avec succès !');
             form.reset();
             imagePreview.innerHTML = '<span>Aperçu de l\'image :</span>';
         });
